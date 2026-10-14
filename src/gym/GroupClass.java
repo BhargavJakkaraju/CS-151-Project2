@@ -1,4 +1,5 @@
 package gym;
+
 import java.util.ArrayList;
 
 public class GroupClass {
@@ -30,6 +31,7 @@ public class GroupClass {
         return 0;
     }
 
+    @Override
     public void addMemberToClass(Member member) {
         for(Member each : currentClassList) {
             if(each.equals(member)) {
