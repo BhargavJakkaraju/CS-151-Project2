@@ -1,8 +1,9 @@
 package gym;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class GroupClass {
+public class GroupClass extends FitnessSession {
     private static final double STANDARD_PRICE = 40.0;
     private static final double PREMIUM_PRICE = 25.0;
 
@@ -10,7 +11,9 @@ public class GroupClass {
     private ArrayList<Member> waitingList;
     private ArrayList<Member> currentClassList;
 
-    public GroupClass(int capacity) {
+    public GroupClass(int capacity, String sessionId, String trainerId,
+            LocalDateTime startTime, int durationMinutes) {
+        super(sessionId, trainerId, startTime, durationMinutes);
         this.capacity = capacity;
         waitingList = new ArrayList<Member>();
         currentClassList = new ArrayList<Member>();
@@ -32,7 +35,7 @@ public class GroupClass {
     }
 
     @Override
-    public void addMemberToClass(Member member) {
+    public void addToClass(Member member) {
         for(Member each : currentClassList) {
             if(each.equals(member)) {
                 return;
@@ -40,6 +43,8 @@ public class GroupClass {
         }
         if(currentClassList.size() < capacity) {
             currentClassList.add(member);
+        } else {
+            waitingList.add(member);
         }
     }
 
@@ -49,6 +54,7 @@ public class GroupClass {
                 currentClassList.remove(i);
             }
         }
+        promoteWaitingMember();
     }
 
     public void promoteWaitingMember() {
@@ -61,7 +67,7 @@ public class GroupClass {
         capacity += difference;
     }
 
-    public void decereaseCapacity(int difference) {
+    public void decreaseCapacity(int difference) {
         if(currentClassList.size() > (capacity-difference)) {
             capacity = currentClassList.size();
         } else {

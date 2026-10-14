@@ -30,6 +30,11 @@ public class PersonalTrainingSession extends FitnessSession {
         return STANDARD_PRICE;
     }
 
+    @Override
+    public void addToClass(Member member) {
+        assignClient(client);
+    }
+
     public void assignClient(Member client) {
         if (client == null) {
             throw new IllegalArgumentException(

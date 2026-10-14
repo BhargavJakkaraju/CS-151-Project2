@@ -18,6 +18,8 @@ public abstract class FitnessSession {
 
     public abstract double calculatePrice();
 
+    public abstract void addToClass(Member member);
+
     public String getSessionId() {
         return sessionId;
     }
