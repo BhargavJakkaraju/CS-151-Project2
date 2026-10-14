@@ -57,6 +57,78 @@ public class Member {
                 && !frozen;
     }
 
+        public void purchaseMembership(String type, int months) {
+        String validType = requireText(type, "Membership type")
+                .toUpperCase(java.util.Locale.ROOT);
+
+        if (!validType.equals("BASIC") && !validType.equals("PREMIUM")) {
+            throw new IllegalArgumentException(
+                    "Membership type must be BASIC or PREMIUM.");
+        }
+
+        validateMonths(months);
+
+        if (expirationDate != null
+                && !LocalDate.now().isAfter(expirationDate)) {
+            throw new IllegalStateException(
+                    "You already have a membership. Renew it instead.");
+        }
+
+        membershipType = validType;
+        expirationDate = LocalDate.now().plusMonths(months);
+        frozen = false;
+    }
+
+    public void renewMembership(int months) {
+        validateMonths(months);
+
+        if (expirationDate == null) {
+            throw new IllegalStateException(
+                    "Purchase a membership before renewing.");
+        }
+
+        if (frozen) {
+            throw new IllegalStateException(
+                    "Resume your membership before renewing.");
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate renewalStart = expirationDate.isBefore(today)
+                ? today : expirationDate;
+
+        expirationDate = renewalStart.plusMonths(months);
+    }
+
+    public void freezeMembership() {
+        if (!hasActiveMembership()) {
+            throw new IllegalStateException(
+                    "Only an active membership can be frozen.");
+        }
+
+        frozen = true;
+    }
+
+    public void resumeMembership() {
+        if (!frozen) {
+            throw new IllegalStateException(
+                    "Your membership is not frozen.");
+        }
+
+        if (LocalDate.now().isAfter(expirationDate)) {
+            throw new IllegalStateException(
+                    "Your membership expired. Purchase a new one.");
+        }
+
+        frozen = false;
+    }
+
+    private static void validateMonths(int months) {
+        if (months < 1 || months > 12) {
+            throw new IllegalArgumentException(
+                    "Choose a membership length from 1 to 12 months.");
+        }
+    }
+
     @Override
     public String toString() {
         return "Member ID: " + memberId
