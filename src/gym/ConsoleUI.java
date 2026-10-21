@@ -23,6 +23,12 @@ public class ConsoleUI {
                 System.out.println("\n--- Gym Membership System ---");
                 System.out.println("1. Register member");
                 System.out.println("2. View members");
+                System.out.println("3. Purchase membership");
+                System.out.println("4. Renew membership");
+                System.out.println("5. Freeze membership");
+                System.out.println("6. Resume membership");
+                System.out.println("7. Check in");
+                System.out.println("8. Remove member");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -35,6 +41,24 @@ public class ConsoleUI {
                         case "2":
                             viewMembers();
                             break;
+                        case "3":
+                            purchaseMembership();
+                            break;
+                        case "4":
+                            renewMembership();
+                            break;
+                        case "5":
+                            freezeMembership();
+                            break;
+                        case "6":
+                            resumeMembership();
+                            break;
+                        case "7":
+                            checkInMember();
+                            break;
+                        case "8":
+                            removeMember();
+                            break;               
                         case "0":
                             return;
                         default:
@@ -73,6 +97,105 @@ public class ConsoleUI {
 
         for (Member member : gym.getMembers()) {
             System.out.println(member);
+        }
+    }
+
+        private void purchaseMembership() {
+        Member member = selectMember();
+        String type;
+
+        while (true) {
+            type = readText("Membership type (BASIC or PREMIUM): ");
+
+            if (type.equalsIgnoreCase("BASIC")
+                    || type.equalsIgnoreCase("PREMIUM")) {
+                break;
+            }
+
+            System.out.println("Please enter BASIC or PREMIUM.");
+        }
+
+        int months = readMonths();
+        member.purchaseMembership(type, months);
+
+        System.out.println("Membership purchased successfully.");
+        System.out.println(member);
+    }
+
+    private void renewMembership() {
+        Member member = selectMember();
+        int months = readMonths();
+
+        member.renewMembership(months);
+
+        System.out.println("Membership renewed successfully.");
+        System.out.println(member);
+    }
+
+    private void freezeMembership() {
+        Member member = selectMember();
+        member.freezeMembership();
+
+        System.out.println("Membership frozen. Gym access is paused.");
+        System.out.println("The expiration date stays the same.");
+    }
+
+    private void resumeMembership() {
+        Member member = selectMember();
+        member.resumeMembership();
+
+        System.out.println("Membership resumed successfully.");
+    }
+
+    private void checkInMember() {
+        Member member = selectMember();
+        gym.checkInMember(member.getMemberId());
+
+        System.out.println("Check-in successful. Welcome, "
+                + member.getName() + "!");
+    }
+
+    private void removeMember() {
+        Member member = selectMember();
+        String confirmation = readText(
+                "Remove " + member.getName() + "? Enter YES to confirm: ");
+
+        if (!confirmation.equalsIgnoreCase("YES")) {
+            System.out.println("Removal canceled.");
+            return;
+        }
+
+        gym.removeMember(member.getMemberId());
+        System.out.println("Member removed successfully.");
+    }
+
+        private Member selectMember() {
+        String memberId = readText("Member ID: ");
+        Member member = gym.findMember(memberId);
+
+        if (member == null) {
+            throw new IllegalArgumentException("Member not found.");
+        }
+
+        return member;
+    }
+
+    private int readMonths() {
+        while (true) {
+            String input = readText("Number of months (1-12): ");
+
+            try {
+                int months = Integer.parseInt(input);
+
+                if (months >= 1 && months <= 12) {
+                    return months;
+                }
+            } catch (NumberFormatException exception) {
+                // Ask again if the input is not a whole number.
+            }
+
+            System.out.println(
+                    "Please enter a whole number from 1 to 12.");
         }
     }
 
