@@ -35,6 +35,8 @@ public class ConsoleUI {
                 System.out.println("10. View trainers");
                 System.out.println("11. Create personal training session");
                 System.out.println("12. View sessions");
+                System.out.println("13. Manage personal training exercises");
+                System.out.println("14. Manage trainer availability");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -76,7 +78,13 @@ public class ConsoleUI {
                             break;
                         case "12":
                             viewSessions();
-                            break;                      
+                            break;
+                         case "13":
+                            manageTrainingExercises();
+                            break; 
+                        case "14":
+                            manageTrainerAvailability();
+                            break;                             
                         case "0":
                             return;
                         default:
@@ -278,6 +286,102 @@ public class ConsoleUI {
         for (FitnessSession session : gym.getSessions()) {
             System.out.println(session);
         }
+    }
+
+        private void manageTrainingExercises() {
+        String sessionId = readText("Personal training session ID: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (!(session instanceof PersonalTrainingSession)) {
+            throw new IllegalArgumentException(
+                    "Personal training session not found.");
+        }
+
+        PersonalTrainingSession training =
+                (PersonalTrainingSession) session;
+
+        System.out.println("1. Add exercise");
+        System.out.println("2. Remove exercise");
+        System.out.println("3. Record exercise completion");
+        System.out.println("4. View exercise plan");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 4);
+
+        switch (action) {
+            case 1:
+                training.addExercise(readText("Exercise name: "));
+                System.out.println("Exercise added.");
+                break;
+            case 2:
+                training.removeExercise(readText("Exercise name: "));
+                System.out.println("Exercise removed.");
+                break;
+            case 3:
+                if (training.getClient() == null) {
+                    throw new IllegalStateException(
+                            "Book a client before recording completion.");
+                }
+
+                training.recordExerciseCompletion(
+                        readText("Exercise name: "));
+                System.out.println("Exercise completion recorded.");
+                break;
+            case 4:
+                System.out.println("Exercises: "
+                        + training.getExercises());
+                System.out.println("Completed: "
+                        + training.getCompletedExercises());
+                break;
+            case 0:
+                return;
+        }
+    }
+
+        private void manageTrainerAvailability() {
+        String trainerId = readText("Trainer ID: ");
+        Trainer trainer = gym.findTrainer(trainerId);
+
+        if (trainer == null) {
+            throw new IllegalArgumentException("Trainer not found.");
+        }
+
+        System.out.println("1. Block an unavailable time");
+        System.out.println("2. View blocked times and assignments");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 2);
+
+        if (action == 0) {
+            return;
+        }
+
+        if (action == 2) {
+            System.out.println("Blocked times: "
+                    + trainer.getBlockedTimes());
+
+            for (FitnessSession session : trainer.getAssignedSessions()) {
+                System.out.println(session);
+            }
+
+            return;
+        }
+
+        LocalDateTime blockedTime = readSessionTime();
+
+        for (FitnessSession session : trainer.getAssignedSessions()) {
+            LocalDateTime endTime = session.getStartTime()
+                    .plusMinutes(session.getDurationMinutes());
+
+            if (!blockedTime.isBefore(session.getStartTime())
+                    && blockedTime.isBefore(endTime)) {
+                throw new IllegalStateException(
+                        "That time falls inside an assigned session.");
+            }
+        }
+
+        trainer.blockUnavailableTime(blockedTime);
+        System.out.println("Unavailable time recorded.");
     }
 
         private Member selectMember() {
