@@ -196,6 +196,19 @@ public class Gym {
                     "Register the trainer before creating a session.");
         }
 
+                for (java.time.LocalDateTime blocked : trainer.getBlockedTimes()) {
+            boolean fallsInsideSession =
+                    !blocked.isBefore(session.getStartTime())
+                    && blocked.isBefore(
+                            session.getStartTime().plusMinutes(
+                                    session.getDurationMinutes()));
+
+            if (fallsInsideSession) {
+                throw new IllegalStateException(
+                        "The session overlaps a trainer's blocked time.");
+            }
+        }
+
         trainer.assignSession(session);
         sessions.add(session);
     }
