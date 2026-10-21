@@ -11,11 +11,13 @@ public class Gym {
 
     private final List<Member> members;
     private final List<Trainer> trainers;
+    private final List<FitnessSession> sessions;
     private final Map<String, LocalDate> lastCheckIns;
 
     public Gym() {
         members = new ArrayList<>();
         trainers = new ArrayList<>();
+        sessions = new ArrayList<>();
         lastCheckIns = new HashMap<>();
     }
 
@@ -145,6 +147,77 @@ public class Gym {
 
     public List<Trainer> getTrainers() {
         return List.copyOf(trainers);
+    }
+
+        public void registerSession(FitnessSession session) {
+        if (session == null) {
+            throw new IllegalArgumentException(
+                    "Session cannot be null.");
+        }
+
+        if (findSession(session.getSessionId()) != null) {
+            throw new IllegalArgumentException(
+                    "A session with this ID already exists.");
+        }
+
+        int sameTypeCount = 0;
+
+        for (FitnessSession existing : sessions) {
+            if (existing.getClass() == session.getClass()) {
+                sameTypeCount++;
+            }
+
+            if (existing.getTrainerId().equalsIgnoreCase(
+                    session.getTrainerId())) {
+                boolean overlaps =
+                        session.getStartTime().isBefore(
+                                existing.getStartTime().plusMinutes(
+                                        existing.getDurationMinutes()))
+                        && existing.getStartTime().isBefore(
+                                session.getStartTime().plusMinutes(
+                                        session.getDurationMinutes()));
+
+                if (overlaps) {
+                    throw new IllegalStateException(
+                            "The trainer has an overlapping session.");
+                }
+            }
+        }
+
+        if (sameTypeCount >= MAXIMUM_INSTANCES) {
+            throw new IllegalStateException(
+                    "The limit for this session type has been reached.");
+        }
+
+        Trainer trainer = findTrainer(session.getTrainerId());
+
+        if (trainer == null) {
+            throw new IllegalArgumentException(
+                    "Register the trainer before creating a session.");
+        }
+
+        trainer.assignSession(session);
+        sessions.add(session);
+    }
+
+    public FitnessSession findSession(String sessionId) {
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Session ID cannot be blank.");
+        }
+
+        for (FitnessSession session : sessions) {
+            if (session.getSessionId().equalsIgnoreCase(
+                    sessionId.trim())) {
+                return session;
+            }
+        }
+
+        return null;
+    }
+
+    public List<FitnessSession> getSessions() {
+        return List.copyOf(sessions);
     }
 
     @Override
