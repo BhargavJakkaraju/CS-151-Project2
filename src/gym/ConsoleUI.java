@@ -29,6 +29,8 @@ public class ConsoleUI {
                 System.out.println("6. Resume membership");
                 System.out.println("7. Check in");
                 System.out.println("8. Remove member");
+                System.out.println("9. Register trainer");
+                System.out.println("10. View trainers");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -58,7 +60,13 @@ public class ConsoleUI {
                             break;
                         case "8":
                             removeMember();
-                            break;               
+                            break; 
+                        case "9":
+                            registerTrainer();
+                            break;
+                        case "10":
+                            viewTrainers();
+                            break;                  
                         case "0":
                             return;
                         default:
@@ -167,6 +175,28 @@ public class ConsoleUI {
 
         gym.removeMember(member.getMemberId());
         System.out.println("Member removed successfully.");
+    }
+
+        private void registerTrainer() {
+        String id = readText("Trainer ID: ");
+        String name = readText("Trainer name: ");
+        String specialty = readText("Specialty: ");
+
+        Trainer trainer = new Trainer(id, name, specialty);
+        gym.registerTrainer(trainer);
+
+        System.out.println("Trainer registered successfully.");
+    }
+
+    private void viewTrainers() {
+        if (gym.getTrainers().isEmpty()) {
+            System.out.println("No trainers registered.");
+            return;
+        }
+
+        for (Trainer trainer : gym.getTrainers()) {
+            System.out.println(trainer);
+        }
     }
 
         private Member selectMember() {

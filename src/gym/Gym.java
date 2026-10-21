@@ -10,10 +10,12 @@ public class Gym {
     private static final int MAXIMUM_INSTANCES = 100;
 
     private final List<Member> members;
+    private final List<Trainer> trainers;
     private final Map<String, LocalDate> lastCheckIns;
 
     public Gym() {
         members = new ArrayList<>();
+        trainers = new ArrayList<>();
         lastCheckIns = new HashMap<>();
     }
 
@@ -103,6 +105,46 @@ public class Gym {
 
     public List<Member> getMembers() {
         return List.copyOf(members);
+    }
+
+        public void registerTrainer(Trainer trainer) {
+        if (trainer == null) {
+            throw new IllegalArgumentException(
+                    "Trainer cannot be null.");
+        }
+
+        if (findTrainer(trainer.getTrainerId()) != null) {
+            throw new IllegalArgumentException(
+                    "A trainer with this ID already exists.");
+        }
+
+        if (trainers.size() >= MAXIMUM_INSTANCES) {
+            throw new IllegalStateException(
+                    "The gym has reached its trainer limit.");
+        }
+
+        trainers.add(trainer);
+    }
+
+    public Trainer findTrainer(String trainerId) {
+        if (trainerId == null || trainerId.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Trainer ID cannot be blank.");
+        }
+
+        String trimmedId = trainerId.trim();
+
+        for (Trainer trainer : trainers) {
+            if (trainer.getTrainerId().equalsIgnoreCase(trimmedId)) {
+                return trainer;
+            }
+        }
+
+        return null;
+    }
+
+    public List<Trainer> getTrainers() {
+        return List.copyOf(trainers);
     }
 
     @Override
