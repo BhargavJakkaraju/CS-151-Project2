@@ -78,6 +78,31 @@ public class MemberTest {
                 () -> member.resumeMembership(),
                 "Cannot resume a membership that is not frozen");
 
+                        Member sameId = new Member(
+                "m001", "Different Name", "different@example.com");
+
+        Member differentId = new Member(
+                "M002", "John", "john@example.com");
+
+        check(member.equals(sameId) && sameId.equals(member),
+                "Matching IDs are equal regardless of capitalization");
+
+        check(member.hashCode() == sameId.hashCode(),
+                "Equal members have matching hash codes");
+
+        check(!member.equals(differentId),
+                "Different IDs are not equal");
+
+        check(!member.equals(null),
+                "Member is not equal to null");
+
+        java.util.Set<Member> uniqueMembers = new java.util.HashSet<>();
+        uniqueMembers.add(member);
+        uniqueMembers.add(sameId);
+
+        check(uniqueMembers.size() == 1,
+                "HashSet recognizes members with matching IDs");
+
         System.out.println("\nAll Member tests passed.");
     }
 

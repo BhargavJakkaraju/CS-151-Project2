@@ -129,6 +129,25 @@ public class Member {
         }
     }
 
+        @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        Member other = (Member) object;
+        return memberId.equalsIgnoreCase(other.memberId);
+    }
+
+    @Override
+    public int hashCode() {
+        return memberId.toUpperCase(java.util.Locale.ROOT).hashCode();
+    }
+
     @Override
     public String toString() {
         return "Member ID: " + memberId
