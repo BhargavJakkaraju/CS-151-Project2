@@ -1,38 +1,43 @@
 package gym;
 
-import java.util.ArrayList;
-
 public class Booking {
     public Member member;
     public FitnessSession session;
     public enum STATUS {
         BOOKED, ATTENDED, MISSED
     }
-    public Status status;
+    public STATUS status;
     
     public Booking(Member member, FitnessSession session) {
         //add exception handling later
         this.member = member;
         this.session = session;
-        session.addMemberToClass(member);
-        status = Status.BOOKED;
+        session.addToClass(member);
+        status = STATUS.BOOKED;
     }
 
     public void cancelBooking() {
         //add exception handling later;
-        session.removeMemberFromClass(member);
+        session.removeFromClass(member);
     }
 
     public void rescheduleBooking(FitnessSession newSession) {
-        session.removeMemberFromClass(member);
-        newSession.addMemberToClass(member);
+        session.removeFromClass(member);
+        newSession.addToClass(member);
     }
 
     public void markAttendence(Boolean attended) {
         if(attended) {
-            status = Status.ATTENDED;
+            status = STATUS.ATTENDED;
         } else {
-            status = Status.MISSED;
+            status = STATUS.MISSED;
         }
+    }
+
+    public boolean wasAttended() {
+        if(status == STATUS.ATTENDED) {
+            return true;
+        }
+        return false;
     }
 }

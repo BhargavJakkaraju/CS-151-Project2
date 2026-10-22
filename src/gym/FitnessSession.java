@@ -20,6 +20,8 @@ public abstract class FitnessSession {
 
     public abstract void addToClass(Member member);
 
+    public abstract void removeFromClass(Member member);
+
     public String getSessionId() {
         return sessionId;
     }

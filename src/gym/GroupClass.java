@@ -49,13 +49,20 @@ public class GroupClass extends FitnessSession {
         }
     }
 
-    public void removeMemberFromClass(Member member) {
+    public void removeFromClass(Member member) {
+        boolean foundMember = false;
         for(int i = 0; i < currentClassList.size(); i++) {
             if(currentClassList.get(i).equals(member)) {
                 currentClassList.remove(i);
+                foundMember = true;
             }
         }
-        promoteWaitingMember();
+        if(!foundMember) {
+            throw new IllegalStateException(
+                    "That member is not in this class.");
+        } else {
+            promoteWaitingMember();
+        }
     }
 
     public void promoteWaitingMember() {

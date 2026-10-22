@@ -35,6 +35,16 @@ public class PersonalTrainingSession extends FitnessSession {
         assignClient(client);
     }
 
+    @Override
+    public void removeFromClass(Member member) {
+        if(member.equals(client)) {
+            client = null;
+        } else {
+            throw new IllegalStateException(
+                    "That member is not in this class.");
+        }
+    }
+
     public void assignClient(Member client) {
         if (client == null) {
             throw new IllegalArgumentException(
