@@ -19,7 +19,8 @@ public class GroupClass extends FitnessSession {
         currentClassList = new ArrayList<Member>();
     }
 
-    public double calculatePriceForMember(Member member) {
+    @Override
+    public double calculatePrice(Member member) {
         for(Member each : currentClassList) {
             if(each.equals(member)){
                 if (member != null
