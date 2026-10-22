@@ -38,6 +38,10 @@ public class ConsoleUI {
                 System.out.println("13. Manage personal training exercises");
                 System.out.println("14. Manage trainer availability");
                 System.out.println("15. Create group class");
+                System.out.println("16. Book a session");
+                System.out.println("17. View bookings");
+                System.out.println("18. Cancel booking");
+                System.out.println("19. Reschedule booking");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -88,6 +92,18 @@ public class ConsoleUI {
                             break;
                         case "15":
                             createGroupClass();
+                            break;
+                        case "16":
+                            createBooking();
+                            break;
+                        case "17":
+                            viewBookings();
+                            break;
+                        case "18":
+                            cancelBooking();
+                            break;
+                        case "19":
+                            rescheduleBooking();
                             break;                                 
                         case "0":
                             return;
@@ -96,7 +112,9 @@ public class ConsoleUI {
                                     "Invalid option. Please try again.");
                     }
                 } catch (IllegalArgumentException
-                        | IllegalStateException exception) {
+                        | IllegalStateException
+                        | SessionFullException
+                        | MemberAlreadyInClassException exception) {
                     System.out.println("Error: " + exception.getMessage());
                 }
             }
@@ -413,6 +431,87 @@ public class ConsoleUI {
 
         gym.registerSession(groupClass);
         System.out.println("Group class created successfully.");
+    }
+
+        private void createBooking()
+            throws SessionFullException, MemberAlreadyInClassException {
+        Member member = selectMember();
+        String sessionId = readText("Session ID: ");
+
+        Booking booking = gym.createBooking(
+                member.getMemberId(), sessionId);
+
+        FitnessSession session =
+                (FitnessSession) booking.getSession();
+
+        System.out.println(
+                "Booking recorded. Full group classes use a waiting list.");
+        System.out.printf("Session price: $%.2f%n",
+                session.calculatePrice(member));
+    }
+
+    private void viewBookings() {
+        if (gym.getBookings().isEmpty()) {
+            System.out.println("No bookings recorded.");
+            return;
+        }
+
+        int number = 1;
+
+        for (Booking booking : gym.getBookings()) {
+            FitnessSession session =
+                    (FitnessSession) booking.getSession();
+
+            System.out.println(number + ". Member: "
+                    + booking.getMember().getMemberId()
+                    + ", Session: " + session.getSessionId()
+                    + ", Status: " + booking.getStatus());
+
+            number++;
+        }
+    }
+
+        private Booking selectBooking() {
+        if (gym.getBookings().isEmpty()) {
+            throw new IllegalStateException("No bookings recorded.");
+        }
+
+        viewBookings();
+
+        int number = readIntInRange(
+                "Booking number: ", 1, gym.getBookings().size());
+
+        return gym.getBookings().get(number - 1);
+    }
+
+    private void cancelBooking() {
+        Booking booking = selectBooking();
+
+        String confirmation = readText(
+                "Cancel this booking? Enter YES to confirm: ");
+
+        if (!confirmation.equalsIgnoreCase("YES")) {
+            System.out.println("Cancellation stopped.");
+            return;
+        }
+
+        booking.cancelBooking();
+        System.out.println("Booking canceled successfully.");
+    }
+
+        private void rescheduleBooking()
+            throws SessionFullException, MemberAlreadyInClassException {
+        Booking booking = selectBooking();
+        String newSessionId = readText("New session ID: ");
+
+        gym.rescheduleBooking(booking, newSessionId);
+        System.out.println("Booking rescheduled successfully.");
+
+        FitnessSession session =
+                (FitnessSession) booking.getSession();
+
+        System.out.printf("Session price: $%.2f%n",
+                session.calculatePrice(booking.getMember()));
     }
 
         private Member selectMember() {

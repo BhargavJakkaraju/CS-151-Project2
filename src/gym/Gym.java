@@ -13,12 +13,14 @@ public class Gym {
     private final List<Trainer> trainers;
     private final List<FitnessSession> sessions;
     private final Map<String, LocalDate> lastCheckIns;
+    private final List<Booking> bookings;
 
     public Gym() {
         members = new ArrayList<>();
         trainers = new ArrayList<>();
         sessions = new ArrayList<>();
         lastCheckIns = new HashMap<>();
+        bookings = new ArrayList<>();
     }
 
     public static int getMaximumInstances() {
@@ -231,6 +233,104 @@ public class Gym {
 
     public List<FitnessSession> getSessions() {
         return List.copyOf(sessions);
+    }
+
+        public Booking createBooking(String memberId, String sessionId)
+            throws SessionFullException, MemberAlreadyInClassException {
+        Member member = findMember(memberId);
+        FitnessSession session = findSession(sessionId);
+
+        if (member == null || session == null) {
+            throw new IllegalArgumentException(
+                    "Member or session not found.");
+        }
+
+        if (bookings.size() >= MAXIMUM_INSTANCES) {
+            throw new IllegalStateException(
+                    "The booking limit has been reached.");
+        }
+
+        validateBooking(member, session, null);
+
+        Booking booking = new Booking(member, session);
+        bookings.add(booking);
+        return booking;
+    }
+
+    private void validateBooking(Member member, FitnessSession session,
+            Booking ignoredBooking) {
+        if (!member.hasActiveMembership()) {
+            throw new IllegalStateException(
+                    "An active, unfrozen membership is required.");
+        }
+
+        if (!session.getStartTime().isAfter(
+                java.time.LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Cannot book a session that has already started.");
+        }
+
+        if (session.getStartTime().toLocalDate()
+                .isAfter(member.getExpirationDate())) {
+            throw new IllegalStateException(
+                    "Membership expires before this session.");
+        }
+
+        for (Booking existing : bookings) {
+            if (existing == ignoredBooking
+                    || existing.getStatus() != Booking.STATUS.BOOKED
+                    || !existing.getMember().equals(member)) {
+                continue;
+            }
+
+            if (existing.getSession() == session) {
+                throw new IllegalArgumentException(
+                        "This member already booked this session.");
+            }
+
+            FitnessSession other =
+                    (FitnessSession) existing.getSession();
+
+            boolean overlaps =
+                    session.getStartTime().isBefore(
+                            other.getStartTime().plusMinutes(
+                                    other.getDurationMinutes()))
+                    && other.getStartTime().isBefore(
+                            session.getStartTime().plusMinutes(
+                                    session.getDurationMinutes()));
+
+            if (overlaps) {
+                throw new IllegalStateException(
+                        "This member has an overlapping booking.");
+            }
+        }
+    }
+
+        public void rescheduleBooking(Booking booking, String newSessionId)
+            throws SessionFullException, MemberAlreadyInClassException {
+        if (booking == null || !bookings.contains(booking)) {
+            throw new IllegalArgumentException(
+                    "Booking not found.");
+        }
+
+        if (booking.getStatus() != Booking.STATUS.BOOKED) {
+            throw new IllegalStateException(
+                    "Only an active booking can be rescheduled.");
+        }
+
+        FitnessSession newSession = findSession(newSessionId);
+
+        if (newSession == null) {
+            throw new IllegalArgumentException(
+                    "New session not found.");
+        }
+
+        validateBooking(booking.getMember(), newSession, booking);
+        booking.rescheduleBooking(newSession);
+    }
+
+    public List<Booking> getBookings() {
+        return List.copyOf(bookings);
     }
 
     @Override

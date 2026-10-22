@@ -1,12 +1,12 @@
 package gym;
 
 public class Booking {
-    public Member member;
-    public Bookable session;
+    private final Member member;
+    private Bookable session;
     public enum STATUS {
         BOOKED, ATTENDED, MISSED, CANCELLED
     }
-    public STATUS status;
+    private STATUS status;
     
     public Booking(Member member, Bookable session) throws SessionFullException, MemberAlreadyInClassException {
         //add exception handling later
@@ -25,7 +25,7 @@ public class Booking {
         session.removeMemberFromClass(member);
         status = STATUS.CANCELLED;
     }
-    
+
         public void rescheduleBooking(Bookable newSession)
             throws SessionFullException, MemberAlreadyInClassException {
         if (newSession == null) {
@@ -73,6 +73,18 @@ public class Booking {
             return true;
         }
         return false;
+    }
+
+        public Member getMember() {
+        return member;
+    }
+
+    public Bookable getSession() {
+        return session;
+    }
+
+    public STATUS getStatus() {
+        return status;
     }
 
     @Override
