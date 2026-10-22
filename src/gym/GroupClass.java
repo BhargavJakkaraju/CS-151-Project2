@@ -46,10 +46,10 @@ public class GroupClass extends FitnessSession {
     }
 
     @Override
-    public void addToClass(Member member) {
+    public void addToClass(Member member) throws MemberAlreadyInClassException{
         for(Member each : currentClassList) {
             if(each.equals(member)) {
-                return;
+                throw new MemberAlreadyInClassException();
             }
         }
         if(currentClassList.size() < capacity) {
