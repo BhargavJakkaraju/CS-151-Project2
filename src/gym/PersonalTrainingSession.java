@@ -32,17 +32,7 @@ public class PersonalTrainingSession extends FitnessSession {
 
     @Override
     public void addToClass(Member member) {
-        assignClient(client);
-    }
-
-    @Override
-    public void removeFromClass(Member member) {
-        if(member.equals(client)) {
-            client = null;
-        } else {
-            throw new IllegalStateException(
-                    "That member is not in this class.");
-        }
+        assignClient(member);
     }
 
     public void assignClient(Member client) {
@@ -62,6 +52,28 @@ public class PersonalTrainingSession extends FitnessSession {
         }
 
         this.client = client;
+    }
+
+    @Override
+    public void removeMemberFromClass(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
+        }
+
+        if (client == null) {
+            throw new IllegalStateException(
+                    "This session has no client.");
+        }
+
+        if (!client.getMemberId().equalsIgnoreCase(
+                member.getMemberId())) {
+            throw new IllegalArgumentException(
+                    "This member is not booked for this session.");
+        }
+
+        client = null;
+        completedExercises.clear();
     }
 
     public void addExercise(String exerciseName) {

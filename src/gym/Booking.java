@@ -18,11 +18,11 @@ public class Booking {
 
     public void cancelBooking() {
         //add exception handling later;
-        session.removeFromClass(member);
+        session.removeMemberFromClass(member);
     }
 
     public void rescheduleBooking(FitnessSession newSession) {
-        session.removeFromClass(member);
+        session.removeMemberFromClass(member);
         newSession.addToClass(member);
     }
 
