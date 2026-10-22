@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import gym.Member;
+
 public class Gym {
     private static final int MAXIMUM_INSTANCES = 100;
 
