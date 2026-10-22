@@ -2,7 +2,7 @@ package gym;
 
 import java.time.LocalDateTime;
 
-public abstract class FitnessSession {
+public abstract class FitnessSession implements Bookable {
     private final String sessionId;
     private String trainerId;
     private LocalDateTime startTime;
@@ -16,9 +16,9 @@ public abstract class FitnessSession {
         this.durationMinutes = requireDuration(durationMinutes);
     }
 
-    public abstract double calculatePrice();
+    public abstract double calculatePrice(Member member);
 
-    public abstract void addToClass(Member member);
+    public abstract void addToClass(Member member) throws SessionFullException, MemberAlreadyInClassException;
 
     public abstract void removeMemberFromClass(Member member);
 

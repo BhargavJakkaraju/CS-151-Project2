@@ -21,7 +21,11 @@ public class PersonalTrainingSession extends FitnessSession {
     }
 
     @Override
-    public double calculatePrice() {
+    public double calculatePrice(Member member) {
+        if(!member.equals(client)) {
+            throw new IllegalStateException(
+                    "Member is not a client in this session.");
+        }
         if (client != null
                 && client.getMembershipType().equals("PREMIUM")
                 && client.hasActiveMembership()) {
@@ -31,19 +35,20 @@ public class PersonalTrainingSession extends FitnessSession {
     }
 
     @Override
-    public void addToClass(Member member) {
+    public void addToClass(Member member) throws SessionFullException {
         assignClient(member);
     }
 
-    public void assignClient(Member client) {
+    public void assignClient(Member client) throws SessionFullException {
         if (client == null) {
             throw new IllegalArgumentException(
                     "Client cannot be null.");
         }
 
         if (this.client != null) {
-            throw new IllegalStateException(
-                    "This personal training session already has a client.");
+            throw new SessionFullException();
+            // throw new IllegalStateException(
+            //         "This personal training session already has a client.");
         }
 
         if (!client.hasActiveMembership()) {
@@ -156,7 +161,7 @@ public class PersonalTrainingSession extends FitnessSession {
 
         return super.toString()
                 + ", Client: " + clientId
-                + ", Price: $" + calculatePrice()
+                + ", Price: $" + calculatePrice(client)
                 + ", Exercises: " + exercises.size()
                 + ", Completed: " + completedExercises.size();
     }

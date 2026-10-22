@@ -19,8 +19,19 @@ public class GroupClass extends FitnessSession {
         currentClassList = new ArrayList<Member>();
     }
 
-    public double calculatePriceForMember(Member member) {
+    @Override
+    public double calculatePrice(Member member) {
         for(Member each : currentClassList) {
+            if(each.equals(member)){
+                if (member != null
+                        && member.getMembershipType().equals("PREMIUM")
+                        && member.hasActiveMembership()) {
+                    return PREMIUM_PRICE;
+                }
+                return STANDARD_PRICE;
+            }
+        }
+        for(Member each : waitingList) {
             if(each.equals(member)){
                 if (member != null
                         && member.getMembershipType().equals("PREMIUM")
@@ -35,10 +46,10 @@ public class GroupClass extends FitnessSession {
     }
 
     @Override
-    public void addToClass(Member member) {
+    public void addToClass(Member member) throws MemberAlreadyInClassException{
         for(Member each : currentClassList) {
             if(each.equals(member)) {
-                return;
+                throw new MemberAlreadyInClassException();
             }
         }
         if(currentClassList.size() < capacity) {
@@ -49,12 +60,19 @@ public class GroupClass extends FitnessSession {
     }
 
     public void removeMemberFromClass(Member member) {
+        boolean foundMember = false;
         for(int i = 0; i < currentClassList.size(); i++) {
             if(currentClassList.get(i).equals(member)) {
                 currentClassList.remove(i);
+                foundMember = true;
             }
         }
-        promoteWaitingMember();
+        if(!foundMember) {
+            throw new IllegalStateException(
+                    "That member is not in this class.");
+        } else {
+            promoteWaitingMember();
+        }
     }
 
     public void promoteWaitingMember() {
@@ -73,5 +91,12 @@ public class GroupClass extends FitnessSession {
         } else {
             capacity -= difference;
         }
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + ", People in class: " + currentClassList.size()
+                + ", People on waiting list: " + waitingList.size();
     }
 }

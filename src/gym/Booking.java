@@ -1,21 +1,19 @@
 package gym;
 
-import java.util.ArrayList;
-
 public class Booking {
     public Member member;
-    public FitnessSession session;
+    public Bookable session;
     public enum STATUS {
         BOOKED, ATTENDED, MISSED
     }
-    public Status status;
+    public STATUS status;
     
-    public Booking(Member member, FitnessSession session) {
+    public Booking(Member member, Bookable session) throws SessionFullException, MemberAlreadyInClassException {
         //add exception handling later
         this.member = member;
         this.session = session;
-        session.addMemberToClass(member);
-        status = Status.BOOKED;
+        session.addToClass(member);
+        status = STATUS.BOOKED;
     }
 
     public void cancelBooking() {
@@ -23,16 +21,29 @@ public class Booking {
         session.removeMemberFromClass(member);
     }
 
-    public void rescheduleBooking(FitnessSession newSession) {
+    public void rescheduleBooking(Bookable newSession) throws SessionFullException, MemberAlreadyInClassException {
         session.removeMemberFromClass(member);
-        newSession.addMemberToClass(member);
+        newSession.addToClass(member);
     }
 
     public void markAttendence(Boolean attended) {
         if(attended) {
-            status = Status.ATTENDED;
+            status = STATUS.ATTENDED;
         } else {
-            status = Status.MISSED;
+            status = STATUS.MISSED;
         }
+    }
+
+    public boolean wasAttended() {
+        if(status == STATUS.ATTENDED) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Session: " + session.toString()
+                + " Member: " + member.toString();
     }
 }
