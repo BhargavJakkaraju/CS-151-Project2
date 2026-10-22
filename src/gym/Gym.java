@@ -61,6 +61,14 @@ public class Gym {
                     "Member not found.");
         }
 
+        for (Booking booking : bookings) {
+            if (booking.getMember().equals(member)
+                    && booking.getStatus() == Booking.STATUS.BOOKED) {
+                throw new InvalidOperationException(
+                        "Cancel this member's active bookings before removing them.");
+            }
+        }
+
         members.remove(member);
         lastCheckIns.remove(member.getMemberId());
     }
