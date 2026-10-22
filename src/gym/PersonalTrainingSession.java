@@ -22,6 +22,10 @@ public class PersonalTrainingSession extends FitnessSession {
 
     @Override
     public double calculatePrice(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
+        }
         if(!member.equals(client)) {
             throw new IllegalStateException(
                     "Member is not a client in this session.");
@@ -161,7 +165,10 @@ public class PersonalTrainingSession extends FitnessSession {
 
         return super.toString()
                 + ", Client: " + clientId
-                + ", Price: $" + calculatePrice(client)
+                + ", Price: "
+                + (client == null
+                        ? "determined when booked"
+                        : "$" + calculatePrice(client))
                 + ", Exercises: " + exercises.size()
                 + ", Completed: " + completedExercises.size();
     }

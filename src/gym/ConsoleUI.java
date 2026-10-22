@@ -1,6 +1,8 @@
 package gym;
 
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 public class ConsoleUI {
     private final Gym gym;
@@ -29,6 +31,21 @@ public class ConsoleUI {
                 System.out.println("6. Resume membership");
                 System.out.println("7. Check in");
                 System.out.println("8. Remove member");
+                System.out.println("9. Register trainer");
+                System.out.println("10. View trainers");
+                System.out.println("11. Create personal training session");
+                System.out.println("12. View sessions");
+                System.out.println("13. Manage personal training exercises");
+                System.out.println("14. Manage trainer availability");
+                System.out.println("15. Create group class");
+                System.out.println("16. Book a session");
+                System.out.println("17. View bookings");
+                System.out.println("18. Cancel booking");
+                System.out.println("19. Reschedule booking");
+                System.out.println("20. Record attendance");
+                System.out.println("21. Manage group-class capacity");
+                System.out.println("22. Remove session");
+                System.out.println("23. Reassign session trainer");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -58,7 +75,52 @@ public class ConsoleUI {
                             break;
                         case "8":
                             removeMember();
-                            break;               
+                            break; 
+                        case "9":
+                            registerTrainer();
+                            break;
+                        case "10":
+                            viewTrainers();
+                            break;
+                         case "11":
+                            createPersonalTrainingSession();
+                            break;
+                        case "12":
+                            viewSessions();
+                            break;
+                         case "13":
+                            manageTrainingExercises();
+                            break; 
+                        case "14":
+                            manageTrainerAvailability();
+                            break;
+                        case "15":
+                            createGroupClass();
+                            break;
+                        case "16":
+                            createBooking();
+                            break;
+                        case "17":
+                            viewBookings();
+                            break;
+                        case "18":
+                            cancelBooking();
+                            break;
+                        case "19":
+                            rescheduleBooking();
+                            break;
+                        case "20":
+                            recordAttendance();
+                            break;
+                        case "21":
+                            manageGroupCapacity();
+                            break;
+                        case "22":
+                            removeSession();
+                            break;
+                        case "23":
+                            reassignSession();
+                            break;                                     
                         case "0":
                             return;
                         default:
@@ -66,7 +128,9 @@ public class ConsoleUI {
                                     "Invalid option. Please try again.");
                     }
                 } catch (IllegalArgumentException
-                        | IllegalStateException exception) {
+                        | IllegalStateException
+                        | SessionFullException
+                        | MemberAlreadyInClassException exception) {
                     System.out.println("Error: " + exception.getMessage());
                 }
             }
@@ -169,7 +233,383 @@ public class ConsoleUI {
         System.out.println("Member removed successfully.");
     }
 
-        private Member selectMember() {
+        private void registerTrainer() {
+        String id = readText("Trainer ID: ");
+        String name = readText("Trainer name: ");
+        String specialty = readText("Specialty: ");
+
+        Trainer trainer = new Trainer(id, name, specialty);
+        gym.registerTrainer(trainer);
+
+        System.out.println("Trainer registered successfully.");
+    }
+
+    private void viewTrainers() {
+        if (gym.getTrainers().isEmpty()) {
+            System.out.println("No trainers registered.");
+            return;
+        }
+
+        for (Trainer trainer : gym.getTrainers()) {
+            System.out.println(trainer);
+        }
+    }
+
+        private LocalDateTime readSessionTime() {
+        while (true) {
+            String input = readText(
+                    "Start time (example: 2026-10-24T15:30): ");
+
+            try {
+                LocalDateTime startTime = LocalDateTime.parse(input);
+
+                if (startTime.isAfter(LocalDateTime.now())) {
+                    return startTime;
+                }
+
+                System.out.println("Please enter a future date and time.");
+            } catch (DateTimeParseException exception) {
+                System.out.println(
+                        "Use YYYY-MM-DDTHH:MM, such as 2026-10-24T15:30.");
+            }
+        }
+    }
+
+    private int readIntInRange(String prompt, int minimum, int maximum) {
+        while (true) {
+            String input = readText(prompt);
+
+            try {
+                int value = Integer.parseInt(input);
+
+                if (value >= minimum && value <= maximum) {
+                    return value;
+                }
+            } catch (NumberFormatException exception) {
+                // Ask again when the input is not a whole number.
+            }
+
+            System.out.println("Enter a whole number from "
+                    + minimum + " to " + maximum + ".");
+        }
+    }
+
+        private void createPersonalTrainingSession() {
+        String trainerId = readText("Trainer ID: ");
+        Trainer trainer = gym.findTrainer(trainerId);
+
+        if (trainer == null) {
+            throw new IllegalArgumentException(
+                    "Trainer not found. Register the trainer first.");
+        }
+
+        String sessionId = readText("Session ID: ");
+        LocalDateTime startTime = readSessionTime();
+        int duration = readIntInRange(
+                "Duration in minutes (1-180): ", 1, 180);
+
+        PersonalTrainingSession session = new PersonalTrainingSession(
+                sessionId, trainer.getTrainerId(), startTime, duration);
+
+        gym.registerSession(session);
+        System.out.println("Personal training session created.");
+    }
+
+    private void viewSessions() {
+        if (gym.getSessions().isEmpty()) {
+            System.out.println("No sessions registered.");
+            return;
+        }
+
+        for (FitnessSession session : gym.getSessions()) {
+            System.out.println(session);
+        }
+    }
+
+        private void manageTrainingExercises() {
+        String sessionId = readText("Personal training session ID: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (!(session instanceof PersonalTrainingSession)) {
+            throw new IllegalArgumentException(
+                    "Personal training session not found.");
+        }
+
+        PersonalTrainingSession training =
+                (PersonalTrainingSession) session;
+
+        System.out.println("1. Add exercise");
+        System.out.println("2. Remove exercise");
+        System.out.println("3. Record exercise completion");
+        System.out.println("4. View exercise plan");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 4);
+
+        switch (action) {
+            case 1:
+                training.addExercise(readText("Exercise name: "));
+                System.out.println("Exercise added.");
+                break;
+            case 2:
+                training.removeExercise(readText("Exercise name: "));
+                System.out.println("Exercise removed.");
+                break;
+            case 3:
+                if (training.getClient() == null) {
+                    throw new IllegalStateException(
+                            "Book a client before recording completion.");
+                }
+
+                training.recordExerciseCompletion(
+                        readText("Exercise name: "));
+                System.out.println("Exercise completion recorded.");
+                break;
+            case 4:
+                System.out.println("Exercises: "
+                        + training.getExercises());
+                System.out.println("Completed: "
+                        + training.getCompletedExercises());
+                break;
+            case 0:
+                return;
+        }
+    }
+
+        private void manageTrainerAvailability() {
+        String trainerId = readText("Trainer ID: ");
+        Trainer trainer = gym.findTrainer(trainerId);
+
+        if (trainer == null) {
+            throw new IllegalArgumentException("Trainer not found.");
+        }
+
+        System.out.println("1. Block an unavailable time");
+        System.out.println("2. View blocked times and assignments");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 2);
+
+        if (action == 0) {
+            return;
+        }
+
+        if (action == 2) {
+            System.out.println("Blocked times: "
+                    + trainer.getBlockedTimes());
+
+            for (FitnessSession session : trainer.getAssignedSessions()) {
+                System.out.println(session);
+            }
+
+            return;
+        }
+
+        LocalDateTime blockedTime = readSessionTime();
+
+        for (FitnessSession session : trainer.getAssignedSessions()) {
+            LocalDateTime endTime = session.getStartTime()
+                    .plusMinutes(session.getDurationMinutes());
+
+            if (!blockedTime.isBefore(session.getStartTime())
+                    && blockedTime.isBefore(endTime)) {
+                throw new IllegalStateException(
+                        "That time falls inside an assigned session.");
+            }
+        }
+
+        trainer.blockUnavailableTime(blockedTime);
+        System.out.println("Unavailable time recorded.");
+    }
+
+        private void createGroupClass() {
+        String trainerId = readText("Trainer ID: ");
+        Trainer trainer = gym.findTrainer(trainerId);
+
+        if (trainer == null) {
+            throw new IllegalArgumentException(
+                    "Trainer not found. Register the trainer first.");
+        }
+
+        String sessionId = readText("Session ID: ");
+        LocalDateTime startTime = readSessionTime();
+
+        int duration = readIntInRange(
+                "Duration in minutes (1-180): ", 1, 180);
+
+        int capacity = readIntInRange(
+                "Class capacity (1-100): ",
+                1, Gym.getMaximumInstances());
+
+        GroupClass groupClass = new GroupClass(
+                capacity, sessionId, trainer.getTrainerId(),
+                startTime, duration);
+
+        gym.registerSession(groupClass);
+        System.out.println("Group class created successfully.");
+    }
+
+        private void createBooking()
+            throws SessionFullException, MemberAlreadyInClassException {
+        Member member = selectMember();
+        String sessionId = readText("Session ID: ");
+
+        Booking booking = gym.createBooking(
+                member.getMemberId(), sessionId);
+
+        FitnessSession session =
+                (FitnessSession) booking.getSession();
+
+        System.out.println(
+                "Booking recorded. Full group classes use a waiting list.");
+        System.out.printf("Session price: $%.2f%n",
+                session.calculatePrice(member));
+    }
+
+    private void viewBookings() {
+        if (gym.getBookings().isEmpty()) {
+            System.out.println("No bookings recorded.");
+            return;
+        }
+
+        int number = 1;
+
+        for (Booking booking : gym.getBookings()) {
+            FitnessSession session =
+                    (FitnessSession) booking.getSession();
+
+            System.out.println(number + ". Member: "
+                    + booking.getMember().getMemberId()
+                    + ", Session: " + session.getSessionId()
+                    + ", Status: " + booking.getStatus());
+
+            number++;
+        }
+    }
+
+        private Booking selectBooking() {
+        if (gym.getBookings().isEmpty()) {
+            throw new IllegalStateException("No bookings recorded.");
+        }
+
+        viewBookings();
+
+        int number = readIntInRange(
+                "Booking number: ", 1, gym.getBookings().size());
+
+        return gym.getBookings().get(number - 1);
+    }
+
+    private void cancelBooking() {
+        Booking booking = selectBooking();
+
+        String confirmation = readText(
+                "Cancel this booking? Enter YES to confirm: ");
+
+        if (!confirmation.equalsIgnoreCase("YES")) {
+            System.out.println("Cancellation stopped.");
+            return;
+        }
+
+        booking.cancelBooking();
+        System.out.println("Booking canceled successfully.");
+    }
+
+        private void rescheduleBooking()
+            throws SessionFullException, MemberAlreadyInClassException {
+        Booking booking = selectBooking();
+        String newSessionId = readText("New session ID: ");
+
+        gym.rescheduleBooking(booking, newSessionId);
+        System.out.println("Booking rescheduled successfully.");
+
+        FitnessSession session =
+                (FitnessSession) booking.getSession();
+
+        System.out.printf("Session price: $%.2f%n",
+                session.calculatePrice(booking.getMember()));
+    }
+
+    private void recordAttendance() {
+        Booking booking = selectBooking();
+
+        int choice = readIntInRange(
+                "Attendance: 1 = attended, 2 = missed: ", 1, 2);
+
+        booking.markAttendence(choice == 1);
+        System.out.println("Attendance recorded.");
+    }
+
+        private void manageGroupCapacity() {
+        String sessionId = readText("Group-class session ID: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (!(session instanceof GroupClass)) {
+            throw new IllegalArgumentException(
+                    "Group class not found.");
+        }
+
+        GroupClass group = (GroupClass) session;
+
+        if (!group.getStartTime().isAfter(LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Cannot change capacity after the class starts.");
+        }
+
+        System.out.println("Current capacity: " + group.getCapacity());
+        System.out.println("1. Increase capacity");
+        System.out.println("2. Decrease capacity");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 2);
+
+        if (action == 0) {
+            return;
+        }
+
+        int difference = readIntInRange(
+                "Number of places: ", 1, Gym.getMaximumInstances());
+
+        if (action == 1) {
+            group.increaseCapacity(difference);
+        } else {
+            group.decreaseCapacity(difference);
+        }
+
+        System.out.println("Updated capacity: " + group.getCapacity());
+    }
+
+    private void removeSession() {
+        String sessionId = readText("Session ID to remove: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (session == null) {
+            throw new IllegalArgumentException("Session not found.");
+        }
+
+        System.out.println(session);
+
+        String confirmation = readText(
+                "Remove this session? Enter YES to confirm: ");
+
+        if (!confirmation.equalsIgnoreCase("YES")) {
+            System.out.println("Removal canceled.");
+            return;
+        }
+
+        gym.removeSession(sessionId);
+        System.out.println("Session removed and trainer assignment cleared.");
+    }
+
+    private void reassignSession() {
+        String sessionId = readText("Session ID: ");
+        String trainerId = readText("New trainer ID: ");
+
+        gym.reassignSession(sessionId, trainerId);
+        System.out.println("Session reassigned successfully.");
+    }
+
+    private Member selectMember() {
         String memberId = readText("Member ID: ");
         Member member = gym.findMember(memberId);
 

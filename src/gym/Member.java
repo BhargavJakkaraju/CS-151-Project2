@@ -70,7 +70,7 @@ public class Member {
 
         if (expirationDate != null
                 && !LocalDate.now().isAfter(expirationDate)) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "You already have a membership. Renew it instead.");
         }
 
@@ -83,12 +83,12 @@ public class Member {
         validateMonths(months);
 
         if (expirationDate == null) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Purchase a membership before renewing.");
         }
 
         if (frozen) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Resume your membership before renewing.");
         }
 
@@ -101,7 +101,7 @@ public class Member {
 
     public void freezeMembership() {
         if (!hasActiveMembership()) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Only an active membership can be frozen.");
         }
 
@@ -110,12 +110,12 @@ public class Member {
 
     public void resumeMembership() {
         if (!frozen) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Your membership is not frozen.");
         }
 
         if (LocalDate.now().isAfter(expirationDate)) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Your membership expired. Purchase a new one.");
         }
 

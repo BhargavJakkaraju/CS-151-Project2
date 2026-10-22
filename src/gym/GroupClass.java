@@ -59,25 +59,35 @@ public class GroupClass extends FitnessSession {
         }
     }
 
+    @Override
     public void removeMemberFromClass(Member member) {
-        boolean foundMember = false;
-        for(int i = 0; i < currentClassList.size(); i++) {
-            if(currentClassList.get(i).equals(member)) {
-                currentClassList.remove(i);
-                foundMember = true;
-            }
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
         }
-        if(!foundMember) {
-            throw new IllegalStateException(
-                    "That member is not in this class.");
-        } else {
+
+        if (currentClassList.remove(member)) {
             promoteWaitingMember();
+            return;
         }
+
+        if (waitingList.remove(member)) {
+            return;
+        }
+
+        throw new IllegalStateException(
+                "That member is not enrolled or on the waiting list.");
     }
 
     public void promoteWaitingMember() {
-        if(currentClassList.size() < capacity && waitingList.size() != 0) {
-            currentClassList.add(waitingList.get(0));
+        while (currentClassList.size() < capacity
+                && !waitingList.isEmpty()) {
+            Member next = waitingList.remove(0);
+
+            if (next.hasActiveMembership()
+                    && !currentClassList.contains(next)) {
+                currentClassList.add(next);
+            }
         }
     }
 
@@ -91,6 +101,14 @@ public class GroupClass extends FitnessSession {
         } else {
             capacity -= difference;
         }
+    }
+
+    public boolean isEnrolled(Member member) {
+        return currentClassList.contains(member);
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override
