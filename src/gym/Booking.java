@@ -40,4 +40,10 @@ public class Booking {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Session: " + session.toString()
+                + " Member: " + member.toString();
+    }
 }

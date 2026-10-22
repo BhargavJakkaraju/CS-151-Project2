@@ -16,7 +16,7 @@ public abstract class FitnessSession {
         this.durationMinutes = requireDuration(durationMinutes);
     }
 
-    public abstract double calculatePrice();
+    public abstract double calculatePrice(Member member);
 
     public abstract void addToClass(Member member);
 

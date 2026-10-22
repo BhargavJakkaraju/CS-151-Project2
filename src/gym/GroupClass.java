@@ -31,6 +31,16 @@ public class GroupClass extends FitnessSession {
                 return STANDARD_PRICE;
             }
         }
+        for(Member each : waitingList) {
+            if(each.equals(member)){
+                if (member != null
+                        && member.getMembershipType().equals("PREMIUM")
+                        && member.hasActiveMembership()) {
+                    return PREMIUM_PRICE;
+                }
+                return STANDARD_PRICE;
+            }
+        }
         //change to throw an exception later
         return 0;
     }
@@ -49,7 +59,7 @@ public class GroupClass extends FitnessSession {
         }
     }
 
-    public void removeFromClass(Member member) {
+    public void removeMemberFromClass(Member member) {
         boolean foundMember = false;
         for(int i = 0; i < currentClassList.size(); i++) {
             if(currentClassList.get(i).equals(member)) {
@@ -81,5 +91,12 @@ public class GroupClass extends FitnessSession {
         } else {
             capacity -= difference;
         }
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + ", People in class: " + currentClassList.size()
+                + ", People on waiting list: " + waitingList.size();
     }
 }
