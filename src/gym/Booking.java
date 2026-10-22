@@ -4,7 +4,7 @@ public class Booking {
     public Member member;
     public Bookable session;
     public enum STATUS {
-        BOOKED, ATTENDED, MISSED
+        BOOKED, ATTENDED, MISSED, CANCELLED
     }
     public STATUS status;
     
@@ -17,13 +17,47 @@ public class Booking {
     }
 
     public void cancelBooking() {
-        //add exception handling later;
-        session.removeMemberFromClass(member);
-    }
+        if (status != STATUS.BOOKED) {
+            throw new IllegalStateException(
+                    "Only an active booking can be canceled.");
+        }
 
-    public void rescheduleBooking(Bookable newSession) throws SessionFullException, MemberAlreadyInClassException {
         session.removeMemberFromClass(member);
+        status = STATUS.CANCELLED;
+    }
+    
+        public void rescheduleBooking(Bookable newSession)
+            throws SessionFullException, MemberAlreadyInClassException {
+        if (newSession == null) {
+            throw new IllegalArgumentException(
+                    "New session cannot be null.");
+        }
+
+        if (newSession == session) {
+            throw new IllegalArgumentException(
+                    "Choose a different session.");
+        }
+
+        if (status != STATUS.BOOKED) {
+            throw new IllegalStateException(
+                    "Only an active booking can be rescheduled.");
+        }
+
         newSession.addToClass(member);
+
+        try {
+            session.removeMemberFromClass(member);
+        } catch (RuntimeException exception) {
+            try {
+                newSession.removeMemberFromClass(member);
+            } catch (RuntimeException rollbackException) {
+                exception.addSuppressed(rollbackException);
+            }
+
+            throw exception;
+        }
+
+        session = newSession;
     }
 
     public void markAttendence(Boolean attended) {

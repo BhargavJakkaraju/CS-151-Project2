@@ -37,6 +37,7 @@ public class ConsoleUI {
                 System.out.println("12. View sessions");
                 System.out.println("13. Manage personal training exercises");
                 System.out.println("14. Manage trainer availability");
+                System.out.println("15. Create group class");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -84,7 +85,10 @@ public class ConsoleUI {
                             break; 
                         case "14":
                             manageTrainerAvailability();
-                            break;                             
+                            break;
+                        case "15":
+                            createGroupClass();
+                            break;                                 
                         case "0":
                             return;
                         default:
@@ -382,6 +386,33 @@ public class ConsoleUI {
 
         trainer.blockUnavailableTime(blockedTime);
         System.out.println("Unavailable time recorded.");
+    }
+
+        private void createGroupClass() {
+        String trainerId = readText("Trainer ID: ");
+        Trainer trainer = gym.findTrainer(trainerId);
+
+        if (trainer == null) {
+            throw new IllegalArgumentException(
+                    "Trainer not found. Register the trainer first.");
+        }
+
+        String sessionId = readText("Session ID: ");
+        LocalDateTime startTime = readSessionTime();
+
+        int duration = readIntInRange(
+                "Duration in minutes (1-180): ", 1, 180);
+
+        int capacity = readIntInRange(
+                "Class capacity (1-100): ",
+                1, Gym.getMaximumInstances());
+
+        GroupClass groupClass = new GroupClass(
+                capacity, sessionId, trainer.getTrainerId(),
+                startTime, duration);
+
+        gym.registerSession(groupClass);
+        System.out.println("Group class created successfully.");
     }
 
         private Member selectMember() {
