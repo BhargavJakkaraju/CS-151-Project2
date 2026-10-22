@@ -2,7 +2,7 @@ package gym;
 
 import java.time.LocalDateTime;
 
-public abstract class FitnessSession {
+public abstract class FitnessSession implements Bookable {
     private final String sessionId;
     private String trainerId;
     private LocalDateTime startTime;

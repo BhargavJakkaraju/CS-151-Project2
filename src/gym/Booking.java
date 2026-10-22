@@ -2,13 +2,13 @@ package gym;
 
 public class Booking {
     public Member member;
-    public FitnessSession session;
+    public Bookable session;
     public enum STATUS {
         BOOKED, ATTENDED, MISSED
     }
     public STATUS status;
     
-    public Booking(Member member, FitnessSession session) {
+    public Booking(Member member, Bookable session) {
         //add exception handling later
         this.member = member;
         this.session = session;
