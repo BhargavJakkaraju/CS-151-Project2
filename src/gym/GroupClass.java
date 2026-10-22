@@ -103,6 +103,14 @@ public class GroupClass extends FitnessSession {
         }
     }
 
+    public boolean isEnrolled(Member member) {
+        return currentClassList.contains(member);
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
     @Override
     public String toString() {
         return super.toString()

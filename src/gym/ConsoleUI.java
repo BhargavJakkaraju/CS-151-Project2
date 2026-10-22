@@ -42,6 +42,10 @@ public class ConsoleUI {
                 System.out.println("17. View bookings");
                 System.out.println("18. Cancel booking");
                 System.out.println("19. Reschedule booking");
+                System.out.println("20. Record attendance");
+                System.out.println("21. Manage group-class capacity");
+                System.out.println("22. Remove session");
+                System.out.println("23. Reassign session trainer");
                 System.out.println("0. Exit");
 
                 String choice = readText("Choose an option: ");
@@ -104,7 +108,19 @@ public class ConsoleUI {
                             break;
                         case "19":
                             rescheduleBooking();
-                            break;                                 
+                            break;
+                        case "20":
+                            recordAttendance();
+                            break;
+                        case "21":
+                            manageGroupCapacity();
+                            break;
+                        case "22":
+                            removeSession();
+                            break;
+                        case "23":
+                            reassignSession();
+                            break;                                     
                         case "0":
                             return;
                         default:
@@ -514,7 +530,86 @@ public class ConsoleUI {
                 session.calculatePrice(booking.getMember()));
     }
 
-        private Member selectMember() {
+    private void recordAttendance() {
+        Booking booking = selectBooking();
+
+        int choice = readIntInRange(
+                "Attendance: 1 = attended, 2 = missed: ", 1, 2);
+
+        booking.markAttendence(choice == 1);
+        System.out.println("Attendance recorded.");
+    }
+
+        private void manageGroupCapacity() {
+        String sessionId = readText("Group-class session ID: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (!(session instanceof GroupClass)) {
+            throw new IllegalArgumentException(
+                    "Group class not found.");
+        }
+
+        GroupClass group = (GroupClass) session;
+
+        if (!group.getStartTime().isAfter(LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Cannot change capacity after the class starts.");
+        }
+
+        System.out.println("Current capacity: " + group.getCapacity());
+        System.out.println("1. Increase capacity");
+        System.out.println("2. Decrease capacity");
+        System.out.println("0. Return to main menu");
+
+        int action = readIntInRange("Choose an option: ", 0, 2);
+
+        if (action == 0) {
+            return;
+        }
+
+        int difference = readIntInRange(
+                "Number of places: ", 1, Gym.getMaximumInstances());
+
+        if (action == 1) {
+            group.increaseCapacity(difference);
+        } else {
+            group.decreaseCapacity(difference);
+        }
+
+        System.out.println("Updated capacity: " + group.getCapacity());
+    }
+
+    private void removeSession() {
+        String sessionId = readText("Session ID to remove: ");
+        FitnessSession session = gym.findSession(sessionId);
+
+        if (session == null) {
+            throw new IllegalArgumentException("Session not found.");
+        }
+
+        System.out.println(session);
+
+        String confirmation = readText(
+                "Remove this session? Enter YES to confirm: ");
+
+        if (!confirmation.equalsIgnoreCase("YES")) {
+            System.out.println("Removal canceled.");
+            return;
+        }
+
+        gym.removeSession(sessionId);
+        System.out.println("Session removed and trainer assignment cleared.");
+    }
+
+    private void reassignSession() {
+        String sessionId = readText("Session ID: ");
+        String trainerId = readText("New trainer ID: ");
+
+        gym.reassignSession(sessionId, trainerId);
+        System.out.println("Session reassigned successfully.");
+    }
+
+    private Member selectMember() {
         String memberId = readText("Member ID: ");
         Member member = gym.findMember(memberId);
 

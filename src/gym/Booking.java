@@ -26,7 +26,7 @@ public class Booking {
         status = STATUS.CANCELLED;
     }
 
-        public void rescheduleBooking(Bookable newSession)
+    public void rescheduleBooking(Bookable newSession)
             throws SessionFullException, MemberAlreadyInClassException {
         if (newSession == null) {
             throw new IllegalArgumentException(
@@ -61,11 +61,33 @@ public class Booking {
     }
 
     public void markAttendence(Boolean attended) {
-        if(attended) {
-            status = STATUS.ATTENDED;
-        } else {
-            status = STATUS.MISSED;
+        if (attended == null) {
+            throw new IllegalArgumentException(
+                    "Attendance cannot be null.");
         }
+
+        if (status != STATUS.BOOKED) {
+            throw new IllegalStateException(
+                    "Attendance can only be recorded once "
+                            + "for an active booking.");
+        }
+
+        FitnessSession fitnessSession = (FitnessSession) session;
+
+        if (java.time.LocalDateTime.now().isBefore(
+                fitnessSession.getStartTime().plusMinutes(
+                        fitnessSession.getDurationMinutes()))) {
+            throw new IllegalStateException(
+                    "Record attendance after the session ends.");
+        }
+
+        if (session instanceof GroupClass
+                && !((GroupClass) session).isEnrolled(member)) {
+            throw new IllegalStateException(
+                    "Waiting-list members cannot have attendance recorded.");
+        }
+
+        status = attended ? STATUS.ATTENDED : STATUS.MISSED;
     }
 
     public boolean wasAttended() {

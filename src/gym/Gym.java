@@ -231,6 +231,102 @@ public class Gym {
         return null;
     }
 
+    public void removeSession(String sessionId) {
+        FitnessSession session = findSession(sessionId);
+
+        if (session == null) {
+            throw new IllegalArgumentException(
+                    "Session not found.");
+        }
+
+        for (Booking booking : bookings) {
+            if (booking.getSession() == session
+                    && booking.getStatus() == Booking.STATUS.BOOKED) {
+                throw new IllegalStateException(
+                        "Cancel active bookings before removing this session.");
+            }
+        }
+
+        Trainer trainer = findTrainer(session.getTrainerId());
+
+        if (trainer == null) {
+            throw new IllegalStateException(
+                    "The session's trainer could not be found.");
+        }
+
+        trainer.cancelAssignment(session.getSessionId());
+        sessions.remove(session);
+    }
+
+    public void reassignSession(String sessionId, String newTrainerId) {
+        FitnessSession session = findSession(sessionId);
+        Trainer newTrainer = findTrainer(newTrainerId);
+
+        if (session == null || newTrainer == null) {
+            throw new IllegalArgumentException(
+                    "Session or new trainer not found.");
+        }
+
+        Trainer oldTrainer = findTrainer(session.getTrainerId());
+
+        if (oldTrainer == null) {
+            throw new IllegalStateException(
+                    "Current trainer not found.");
+        }
+
+        if (oldTrainer == newTrainer) {
+            throw new IllegalArgumentException(
+                    "Choose a different trainer.");
+        }
+
+        if (!session.getStartTime().isAfter(
+                java.time.LocalDateTime.now())) {
+            throw new IllegalStateException(
+                    "Cannot reassign a session that has started.");
+        }
+
+        java.time.LocalDateTime start = session.getStartTime();
+        java.time.LocalDateTime end =
+                start.plusMinutes(session.getDurationMinutes());
+
+        for (FitnessSession other : newTrainer.getAssignedSessions()) {
+            boolean overlaps =
+                    start.isBefore(other.getStartTime().plusMinutes(
+                            other.getDurationMinutes()))
+                    && other.getStartTime().isBefore(end);
+
+            if (overlaps) {
+                throw new IllegalStateException(
+                        "The new trainer has an overlapping session.");
+            }
+        }
+
+        for (java.time.LocalDateTime blocked : newTrainer.getBlockedTimes()) {
+            if (!blocked.isBefore(start) && blocked.isBefore(end)) {
+                throw new IllegalStateException(
+                        "The new trainer is unavailable during this session.");
+            }
+        }
+
+        String previousTrainerId = session.getTrainerId();
+        oldTrainer.cancelAssignment(session.getSessionId());
+        session.setTrainerId(newTrainer.getTrainerId());
+
+        try {
+            newTrainer.assignSession(session);
+        } catch (RuntimeException exception) {
+            session.setTrainerId(previousTrainerId);
+
+            try {
+                oldTrainer.assignSession(session);
+            } catch (RuntimeException rollbackException) {
+                exception.addSuppressed(rollbackException);
+            }
+
+            throw exception;
+        }
+    }
+        
     public List<FitnessSession> getSessions() {
         return List.copyOf(sessions);
     }
@@ -306,7 +402,7 @@ public class Gym {
         }
     }
 
-        public void rescheduleBooking(Booking booking, String newSessionId)
+    public void rescheduleBooking(Booking booking, String newSessionId)
             throws SessionFullException, MemberAlreadyInClassException {
         if (booking == null || !bookings.contains(booking)) {
             throw new IllegalArgumentException(
