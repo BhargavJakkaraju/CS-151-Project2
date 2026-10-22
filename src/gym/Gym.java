@@ -46,7 +46,7 @@ public class Gym {
         }
 
         if (members.size() >= MAXIMUM_INSTANCES) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "The gym cannot register more than 100 members.");
         }
 
@@ -74,7 +74,7 @@ public class Gym {
         }
 
         if (!member.hasActiveMembership()) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "An active, unfrozen membership is required.");
         }
 
@@ -83,7 +83,7 @@ public class Gym {
                 lastCheckIns.get(member.getMemberId());
 
         if (today.equals(previousCheckIn)) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "This member has already checked in today.");
         }
 
@@ -123,7 +123,7 @@ public class Gym {
         }
 
         if (trainers.size() >= MAXIMUM_INSTANCES) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "The gym has reached its trainer limit.");
         }
 
@@ -180,14 +180,14 @@ public class Gym {
                                         session.getDurationMinutes()));
 
                 if (overlaps) {
-                    throw new IllegalStateException(
+                    throw new InvalidOperationException(
                             "The trainer has an overlapping session.");
                 }
             }
         }
 
         if (sameTypeCount >= MAXIMUM_INSTANCES) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "The limit for this session type has been reached.");
         }
 
@@ -206,7 +206,7 @@ public class Gym {
                                     session.getDurationMinutes()));
 
             if (fallsInsideSession) {
-                throw new IllegalStateException(
+                throw new InvalidOperationException(
                         "The session overlaps a trainer's blocked time.");
             }
         }
@@ -242,7 +242,7 @@ public class Gym {
         for (Booking booking : bookings) {
             if (booking.getSession() == session
                     && booking.getStatus() == Booking.STATUS.BOOKED) {
-                throw new IllegalStateException(
+                throw new InvalidOperationException(
                         "Cancel active bookings before removing this session.");
             }
         }
@@ -250,7 +250,7 @@ public class Gym {
         Trainer trainer = findTrainer(session.getTrainerId());
 
         if (trainer == null) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "The session's trainer could not be found.");
         }
 
@@ -270,7 +270,7 @@ public class Gym {
         Trainer oldTrainer = findTrainer(session.getTrainerId());
 
         if (oldTrainer == null) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Current trainer not found.");
         }
 
@@ -281,7 +281,7 @@ public class Gym {
 
         if (!session.getStartTime().isAfter(
                 java.time.LocalDateTime.now())) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Cannot reassign a session that has started.");
         }
 
@@ -296,14 +296,14 @@ public class Gym {
                     && other.getStartTime().isBefore(end);
 
             if (overlaps) {
-                throw new IllegalStateException(
+                throw new InvalidOperationException(
                         "The new trainer has an overlapping session.");
             }
         }
 
         for (java.time.LocalDateTime blocked : newTrainer.getBlockedTimes()) {
             if (!blocked.isBefore(start) && blocked.isBefore(end)) {
-                throw new IllegalStateException(
+                throw new InvalidOperationException(
                         "The new trainer is unavailable during this session.");
             }
         }
@@ -342,7 +342,7 @@ public class Gym {
         }
 
         if (bookings.size() >= MAXIMUM_INSTANCES) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "The booking limit has been reached.");
         }
 
@@ -356,19 +356,19 @@ public class Gym {
     private void validateBooking(Member member, FitnessSession session,
             Booking ignoredBooking) {
         if (!member.hasActiveMembership()) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "An active, unfrozen membership is required.");
         }
 
         if (!session.getStartTime().isAfter(
                 java.time.LocalDateTime.now())) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Cannot book a session that has already started.");
         }
 
         if (session.getStartTime().toLocalDate()
                 .isAfter(member.getExpirationDate())) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Membership expires before this session.");
         }
 
@@ -396,7 +396,7 @@ public class Gym {
                                     session.getDurationMinutes()));
 
             if (overlaps) {
-                throw new IllegalStateException(
+                throw new InvalidOperationException(
                         "This member has an overlapping booking.");
             }
         }
@@ -410,7 +410,7 @@ public class Gym {
         }
 
         if (booking.getStatus() != Booking.STATUS.BOOKED) {
-            throw new IllegalStateException(
+            throw new InvalidOperationException(
                     "Only an active booking can be rescheduled.");
         }
 
