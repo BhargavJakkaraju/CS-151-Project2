@@ -92,8 +92,12 @@ duplicate prevention, check-in validation, and member capacity limits.
 - Added integration fixes and validation.
 - Added README installation, usage, and test instructions.
 
-### Member 2
-Add your contributions here.
+### Member 2 - Bhargav Jakkaraju
+- Implemented abstract `FitnessSession` base class.
+- Implemented `Trainer` (assignment, cancellation, blocking, availability).
+- Implemented `PersonalTrainingSession` (client assignment, exercise plan, completion tracking, Standard vs. Premium pricing).
+- Added unit tests `TrainerTest` and `PersonalTrainingSessionTest`.
+
 
 ### Member 3
 Add your contributions here.
