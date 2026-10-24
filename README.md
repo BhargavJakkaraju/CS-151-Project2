@@ -99,5 +99,8 @@ duplicate prevention, check-in validation, and member capacity limits.
 - Added unit tests `TrainerTest` and `PersonalTrainingSessionTest`.
 
 
-### Member 3
-Add your contributions here.
+### Member 3 - Rayna Logan
+- Implemented `GroupClass` (class and waiting list, creating spots, removing spots, promoting waiting members)
+- Implemented `Bookable` interface (adding and removing members)
+- Implemented `Booking` (rescheduling, tracking attendence, creating and canceling bookings)
+- Added unit test `BookingTest` and `GroupClassTest`
