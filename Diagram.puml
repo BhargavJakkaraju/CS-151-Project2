@@ -1,0 +1,105 @@
+@startuml
+
+
+interface Bookable {
+    + addToClass()
+    + removeMemberFromClass()
+}
+
+enum STATUS {
+    BOOKED
+    ATTENDED
+    MISSED
+    CANCELLED
+}
+
+class Booking {
+    - member
+    - session
+    - status
+    + cancelBooking()
+    + rescheduleBooking()
+    + markAttendence()
+    + wasAttended()
+}
+
+abstract class FitnessSession {
+    - sessionID
+    - trainerID
+    - startTime
+    - durationMinutes
+    {abstract}+ calculatePrice()
+}
+
+class GroupClass {
+    - capacity
+    - currentClassList
+    - waitingList
+    + addToClass()
+    + removeMemberFromClass()
+    + calculatePrice()
+    + promoteWaitingMember()
+}
+
+class PersonalTrainingSession {
+    - client
+    - exercises
+    - completedExercises
+    + addToClass()
+    + removeMemberFromClass()
+    + calculatePrice()
+    + recordExerciseCompletion()
+}
+
+class Member {
+    - memberID
+    - name
+    - email
+    - membershipType
+    - expirationDate
+    - frozen
+    + purchaseMembership()
+    + renewMembership()
+    + freezeMembership()
+}
+
+class Gym {
+    - members
+    - trainers
+    - sessions
+    - bookings
+    - lastCheckIns
+    + registerMember()
+    + removeMember()
+    + checkInMember()
+}
+
+class Trainer {
+    - trainerID
+    - name
+    - specialty
+    - blockedTimes
+    - assignedSessions
+    + assignSession()
+    + cancelAssignment()
+    + blockUnavailableTime()
+}
+
+
+Bookable <|.. FitnessSession
+
+FitnessSession <|-- GroupClass
+FitnessSession <|-- PersonalTrainingSession
+
+Booking *-- STATUS
+
+Gym "1" ..> "many" Member
+Gym "1" ..> "many" Trainer
+Gym "1" ..> "many" FitnessSession
+Gym "1" ..> "many" Booking
+
+Booking "1" ..> "1" Member
+Booking "1" ..> "1" FitnessSession
+
+
+@enduml
