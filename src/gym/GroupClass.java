@@ -17,10 +17,19 @@ public class GroupClass extends FitnessSession {
         this.capacity = capacity;
         waitingList = new ArrayList<Member>();
         currentClassList = new ArrayList<Member>();
+
+        if (capacity < 0) {
+            throw new IllegalArgumentException(
+                    "Capacity cannot be negative.");
+        }
     }
 
     @Override
     public double calculatePrice(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
+        }
         for(Member each : currentClassList) {
             if(each.equals(member)){
                 if (member != null
@@ -41,13 +50,22 @@ public class GroupClass extends FitnessSession {
                 return STANDARD_PRICE;
             }
         }
-        //change to throw an exception later
-        return 0;
+        throw new IllegalStateException(
+                "Member is not in class.");
     }
 
     @Override
     public void addToClass(Member member) throws MemberAlreadyInClassException{
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
+        }
         for(Member each : currentClassList) {
+            if(each.equals(member)) {
+                throw new MemberAlreadyInClassException();
+            }
+        }
+        for(Member each : waitingList) {
             if(each.equals(member)) {
                 throw new MemberAlreadyInClassException();
             }

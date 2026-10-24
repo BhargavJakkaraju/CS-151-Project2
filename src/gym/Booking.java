@@ -9,7 +9,6 @@ public class Booking {
     private STATUS status;
     
     public Booking(Member member, Bookable session) throws SessionFullException, MemberAlreadyInClassException {
-        //add exception handling later
         this.member = member;
         this.session = session;
         session.addToClass(member);
