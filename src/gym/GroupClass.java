@@ -14,7 +14,11 @@ public class GroupClass extends FitnessSession {
     public GroupClass(int capacity, String sessionId, String trainerId,
             LocalDateTime startTime, int durationMinutes) {
         super(sessionId, trainerId, startTime, durationMinutes);
-        this.capacity = capacity;
+        if (capacity < 1 || capacity > 100) {
+        throw new IllegalArgumentException(
+            "Capacity must be between 1 and 100.");
+    }
+    this.capacity = capacity;
         waitingList = new ArrayList<Member>();
         currentClassList = new ArrayList<Member>();
 
@@ -98,27 +102,43 @@ public class GroupClass extends FitnessSession {
     }
 
     public void promoteWaitingMember() {
-        while (currentClassList.size() < capacity
-                && !waitingList.isEmpty()) {
-            Member next = waitingList.remove(0);
+        int index = 0;
 
-            if (next.hasActiveMembership()
-                    && !currentClassList.contains(next)) {
+        while (currentClassList.size() < capacity
+                && index < waitingList.size()) {
+            Member next = waitingList.get(index);
+
+            if (next.hasActiveMembership()) {
+                waitingList.remove(index);
                 currentClassList.add(next);
+            } else {
+                index++;
             }
         }
     }
 
     public void increaseCapacity(int difference) {
+        if (difference <= 0 || difference > 100 - capacity) {
+            throw new IllegalArgumentException(
+                    "Increase must be positive and total capacity cannot exceed 100.");
+        }
+
         capacity += difference;
+        promoteWaitingMember();
     }
 
     public void decreaseCapacity(int difference) {
-        if(currentClassList.size() > (capacity-difference)) {
-            capacity = currentClassList.size();
-        } else {
-            capacity -= difference;
+        if (difference <= 0 || difference >= capacity) {
+            throw new IllegalArgumentException(
+                    "Decrease must be positive and capacity must remain at least 1.");
         }
+
+        if (capacity - difference < currentClassList.size()) {
+            throw new IllegalStateException(
+                    "Capacity cannot be less than current enrollment.");
+        }
+
+        capacity -= difference;
     }
 
     public boolean isEnrolled(Member member) {
