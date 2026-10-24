@@ -13,7 +13,7 @@ Data is stored in memory and is cleared when the program exits.
 ## Developers
 - Member 1: Min Myat Thu
 - Member 2: [Add name]
-- Member 3: [Add name]
+- Member 3: Rayna Logan
 
 ## Design
 - `Member` manages membership information and membership actions.
