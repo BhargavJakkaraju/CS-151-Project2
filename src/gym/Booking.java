@@ -8,7 +8,19 @@ public class Booking {
     }
     private STATUS status;
     
-    public Booking(Member member, Bookable session) throws SessionFullException, MemberAlreadyInClassException {
+        public Booking(Member member, Bookable session)
+            throws SessionFullException, MemberAlreadyInClassException {
+        if (member == null) {
+            throw new IllegalArgumentException(
+                    "Member cannot be null.");
+        }
+
+        if (session == null) {
+            throw new IllegalArgumentException(
+                    "Session cannot be null.");
+        }
+
+        session.addToClass(member);
         this.member = member;
         this.session = session;
         this.status = STATUS.BOOKED;
