@@ -100,6 +100,7 @@ duplicate prevention, check-in validation, and member capacity limits.
 
 
 ### Member 3 - Rayna Logan
+- Created UML diagram
 - Implemented `GroupClass` (class and waiting list, creating spots, removing spots, promoting waiting members)
 - Implemented `Bookable` interface (adding and removing members)
 - Implemented `Booking` (rescheduling, tracking attendence, creating and canceling bookings)
