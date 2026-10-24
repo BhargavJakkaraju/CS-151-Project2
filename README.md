@@ -12,7 +12,7 @@ Data is stored in memory and is cleared when the program exits.
 
 ## Developers
 - Member 1: Min Myat Thu
-- Member 2: [Add name]
+- Member 2: Bhargav Jakkaraju
 - Member 3: Rayna Logan
 
 ## Design
@@ -67,21 +67,26 @@ The session must occur before the member's membership expires.
 Enter `EXIT` at any prompt to quit, or choose `0` from the main menu.
 
 ## Testing
-Compile the source files and membership tests:
+Compile all source files and tests from the project root:
 
 ```bash
-javac -d out src/gym/*.java test/gym/MemberTest.java test/gym/GymTest.java
+javac -d out src/gym/*.java test/gym/*.java
 ```
 
-Run each test program:
+Run all six test programs:
 
 ```bash
 java -cp out gym.MemberTest
 java -cp out gym.GymTest
+java -cp out gym.TrainerTest
+java -cp out gym.PersonalTrainingSessionTest
+java -cp out gym.GroupClassTest
+java -cp out gym.BookingTest
 ```
 
-These tests cover membership actions, member identity, registration,
-duplicate prevention, check-in validation, and member capacity limits.
+The tests cover memberships, registration, check-ins, trainers,
+personal training, group classes, waiting lists, pricing, bookings,
+cancellation, rescheduling, and attendance.
 
 ## Contributions
 ### Member 1 — Min Myat Thu
