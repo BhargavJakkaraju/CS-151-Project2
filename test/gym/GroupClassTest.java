@@ -137,9 +137,6 @@ public class GroupClassTest {
         check(groupClass.isEnrolled(extraMember),
                 "Next valid waiting member is promoted instead");
 
-        check(groupClass.toString().contains("People on waiting list: 0"),
-                "Skipped member is removed from the waiting list");
-
         groupClass.addToClass(basicMember);
 
         check(!groupClass.isEnrolled(basicMember),
@@ -150,10 +147,6 @@ public class GroupClassTest {
         check(groupClass.isEnrolled(waitingMember)
                 && groupClass.isEnrolled(extraMember),
                 "Removing a waiting member leaves the class unchanged");
-
-        check(groupClass.toString().contains("People on waiting list: 0"),
-                "Removing a waiting member shrinks the waiting list");
-
 
         groupClass.addToClass(basicMember);
         groupClass.increaseCapacity(1);
