@@ -36,8 +36,8 @@ Install a Java Development Kit. Development used JDK 25.0.1.
 Clone the repository:
 
 ```bash
-git clone https://github.com/BhargavJakkaraju/CS-151-Project2.git
-cd CS-151-Project2
+git clone https://github.com/BhargavJakkaraju/CS-151-Project2-Fall2026.git
+cd CS-151-Project2-Fall2026
 ```
 
 Compile from the project root:
