@@ -1,9 +1,14 @@
 @startuml
+!pragma layout smetana
 
+title Gym Membership System
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
 
 interface Bookable {
-    + addToClass()
-    + removeMemberFromClass()
+    + addToClass(member: Member): void
+    + removeMemberFromClass(member: Member): void
 }
 
 enum STATUS {
@@ -14,92 +19,170 @@ enum STATUS {
 }
 
 class Booking {
-    - member
-    - session
-    - status
-    + cancelBooking()
-    + rescheduleBooking()
-    + markAttendence()
-    + wasAttended()
+    - member: Member
+    - session: Bookable
+    - status: STATUS
+    + Booking(member: Member, session: Bookable)
+    + cancelBooking(): void
+    + rescheduleBooking(newSession: Bookable): void
+    + markAttendence(attended: Boolean): void
+    + wasAttended(): boolean
 }
 
 abstract class FitnessSession {
-    - sessionID
-    - trainerID
-    - startTime
-    - durationMinutes
-    {abstract}+ calculatePrice()
+    - sessionId: String
+    - trainerId: String
+    - startTime: LocalDateTime
+    - durationMinutes: int
+    {abstract} + calculatePrice(member: Member): double
+    {abstract} + addToClass(member: Member): void
+    {abstract} + removeMemberFromClass(member: Member): void
 }
 
 class GroupClass {
-    - capacity
-    - currentClassList
-    - waitingList
-    + addToClass()
-    + removeMemberFromClass()
-    + calculatePrice()
-    + promoteWaitingMember()
+    {static} - STANDARD_PRICE: double
+    {static} - PREMIUM_PRICE: double
+    - capacity: int
+    - currentClassList: ArrayList<Member>
+    - waitingList: ArrayList<Member>
+    + GroupClass(capacity: int, sessionId: String, trainerId: String, startTime: LocalDateTime, durationMinutes: int)
+    + addToClass(member: Member): void
+    + removeMemberFromClass(member: Member): void
+    + calculatePrice(member: Member): double
+    + promoteWaitingMember(): void
+    + increaseCapacity(difference: int): void
+    + decreaseCapacity(difference: int): void
+    + isEnrolled(member: Member): boolean
 }
 
 class PersonalTrainingSession {
-    - client
-    - exercises
-    - completedExercises
-    + addToClass()
-    + removeMemberFromClass()
-    + calculatePrice()
-    + recordExerciseCompletion()
+    {static} - STANDARD_PRICE: double
+    {static} - PREMIUM_PRICE: double
+    - client: Member
+    - exercises: List<String>
+    - completedExercises: List<String>
+    + PersonalTrainingSession(sessionId: String, trainerId: String, startTime: LocalDateTime, durationMinutes: int)
+    + calculatePrice(member: Member): double
+    + addToClass(member: Member): void
+    + assignClient(client: Member): void
+    + removeMemberFromClass(member: Member): void
+    + addExercise(exerciseName: String): void
+    + removeExercise(exerciseName: String): void
+    + recordExerciseCompletion(exerciseName: String): void
 }
 
 class Member {
-    - memberID
-    - name
-    - email
-    - membershipType
-    - expirationDate
-    - frozen
-    + purchaseMembership()
-    + renewMembership()
-    + freezeMembership()
+    - memberId: String
+    - name: String
+    - email: String
+    - membershipType: String
+    - expirationDate: LocalDate
+    - frozen: boolean
+    + Member(memberId: String, name: String, email: String)
+    + purchaseMembership(type: String, months: int): void
+    + renewMembership(months: int): void
+    + freezeMembership(): void
+    + resumeMembership(): void
+    + hasActiveMembership(): boolean
+    + equals(other: Object): boolean
+    + hashCode(): int
 }
 
 class Gym {
-    - members
-    - trainers
-    - sessions
-    - bookings
-    - lastCheckIns
-    + registerMember()
-    + removeMember()
-    + checkInMember()
+    {static} - MAXIMUM_INSTANCES: int
+    - members: List<Member>
+    - trainers: List<Trainer>
+    - sessions: List<FitnessSession>
+    - bookings: List<Booking>
+    - lastCheckIns: Map<String, LocalDate>
+    + Gym()
+    + registerMember(member: Member): void
+    + removeMember(memberId: String): void
+    + checkInMember(memberId: String): void
+    + findMember(memberId: String): Member
+    + registerTrainer(trainer: Trainer): void
+    + findTrainer(trainerId: String): Trainer
+    + registerSession(session: FitnessSession): void
+    + findSession(sessionId: String): FitnessSession
+    + removeSession(sessionId: String): void
+    + reassignSession(sessionId: String, newTrainerId: String): void
+    + createBooking(memberId: String, sessionId: String): Booking
+    + rescheduleBooking(booking: Booking, newSessionId: String): void
+    - validateBooking(member: Member, session: FitnessSession, ignoredBooking: Booking): void
 }
 
 class Trainer {
-    - trainerID
-    - name
-    - specialty
-    - blockedTimes
-    - assignedSessions
-    + assignSession()
-    + cancelAssignment()
-    + blockUnavailableTime()
+    - trainerId: String
+    - name: String
+    - specialty: String
+    - blockedTimes: List<LocalDateTime>
+    - assignedSessions: List<FitnessSession>
+    + Trainer(trainerId: String, name: String, specialty: String)
+    + assignSession(session: FitnessSession): void
+    + cancelAssignment(sessionId: String): void
+    + blockUnavailableTime(startTime: LocalDateTime): void
+    + isAvailable(startTime: LocalDateTime): boolean
 }
 
+class Main {
+    {static} + main(args: String[]): void
+}
+
+class ConsoleUI {
+    - gym: Gym
+    - scanner: Scanner
+    + ConsoleUI(gym: Gym)
+    + run(): void
+}
+
+class SessionFullException <<exception>> {
+    + SessionFullException()
+}
+
+class MemberAlreadyInClassException <<exception>> {
+    + MemberAlreadyInClassException()
+}
+
+class InvalidOperationException <<exception>> {
+    + InvalidOperationException(message: String)
+}
 
 Bookable <|.. FitnessSession
-
 FitnessSession <|-- GroupClass
 FitnessSession <|-- PersonalTrainingSession
 
-Booking *-- STATUS
+Gym "1" --> "0..*" Member : registers
+Gym "1" --> "0..*" Trainer : registers
+Gym "1" --> "0..*" FitnessSession : manages
+Gym "1" --> "0..*" Booking : stores
 
-Gym "1" ..> "many" Member
-Gym "1" ..> "many" Trainer
-Gym "1" ..> "many" FitnessSession
-Gym "1" ..> "many" Booking
+Booking "0..*" --> "1" Member : member
+Booking "0..*" --> "1" Bookable : session
+Booking --> STATUS : status
 
-Booking "1" ..> "1" Member
-Booking "1" ..> "1" FitnessSession
+Trainer "0..1" --> "0..*" FitnessSession : assignedSessions
+PersonalTrainingSession --> "0..1" Member : client
+GroupClass --> "0..*" Member : enrolled / waiting
 
+Main ..> Gym : creates
+Main ..> ConsoleUI : creates
+ConsoleUI --> "1" Gym : uses
+
+Bookable ..> SessionFullException : declares
+Bookable ..> MemberAlreadyInClassException : declares
+PersonalTrainingSession ..> SessionFullException : throws
+GroupClass ..> MemberAlreadyInClassException : throws
+Member ..> InvalidOperationException : throws
+Gym ..> InvalidOperationException : throws
+
+note bottom of ConsoleUI
+  Displays the menu and handles user input.
+  Private menu handlers are omitted.
+end note
+
+note bottom of FitnessSession
+  Getters, setters, and validation helpers
+  are omitted for readability.
+end note
 
 @enduml
