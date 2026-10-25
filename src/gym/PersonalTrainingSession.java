@@ -104,7 +104,8 @@ public class PersonalTrainingSession extends FitnessSession {
         for (int i = 0; i < exercises.size(); i++) {
             if (exercises.get(i).equalsIgnoreCase(name)) {
                 exercises.remove(i);
-                completedExercises.remove(name);
+                completedExercises.removeIf(
+                    completed -> completed.equalsIgnoreCase(name));
                 return;
             }
         }

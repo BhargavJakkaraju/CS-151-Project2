@@ -186,6 +186,17 @@ public class PersonalTrainingSessionTest {
         check(session.toString().contains("S001"),
                 "toString includes the session ID");
 
+        PersonalTrainingSession caseTest = new PersonalTrainingSession(
+                "CASE001", "T001", start, 60);
+
+        caseTest.addExercise("Squats");
+        caseTest.recordExerciseCompletion("squats");
+        caseTest.removeExercise("SQUATS");
+
+        check(caseTest.getExercises().isEmpty()
+                        && caseTest.getCompletedExercises().isEmpty(),
+                "Exercise removal clears completion regardless of case");
+
         System.out.println(
                 "\nAll PersonalTrainingSession tests passed.");
     }
